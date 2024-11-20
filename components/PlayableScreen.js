@@ -1,90 +1,81 @@
 import React, { useState, useEffect } from 'react';
-import { View, Button, Text, Modal, StyleSheet, TextInput, Alert } from 'react-native';
+import { View, Text, Button, TextInput, Modal, StyleSheet } from 'react-native';
 
 const PlayableScreen = () => {
-  const [isModalVisible, setIsModalVisible] = useState(false);
   const [randomNumbers, setRandomNumbers] = useState([]);
   const [currentNumberIndex, setCurrentNumberIndex] = useState(0);
+  const [isModalVisible, setIsModalVisible] = useState(false);
   const [isInputVisible, setIsInputVisible] = useState(false);
   const [userInput, setUserInput] = useState('');
-  const [isButtonVisible, setIsButtonVisible] = useState(true);
-  const [userInputs, setUserInputs] = useState([]);
-  const [isCorrect, setIsCorrect] = useState(false);
+  const [isCorrect, setIsCorrect] = useState(null);
 
   const handlePlayGame = () => {
-    // Generate 10 random numbers
     const numbers = Array.from({ length: 10 }, () => Math.floor(Math.random() * 10));
     setRandomNumbers(numbers);
     setIsModalVisible(true);
-    setIsButtonVisible(false);
-    setUserInputs([]); // Clear previous user inputs
-
-    // Start the automatic number display
+    setIsInputVisible(false);
+    setIsCorrect(null);
     const intervalId = setInterval(() => {
       setCurrentNumberIndex((prevIndex) => (prevIndex + 1) % numbers.length);
     }, 800);
-
-    // Clear the interval after 10 seconds and show the input field
     setTimeout(() => {
       clearInterval(intervalId);
       setIsInputVisible(true);
     }, 10000);
   };
 
-  const handleInputChange = (text) => {
-    setUserInput(text);
-  };
-
   const handleSubmit = () => {
-    userInputs.push(parseInt(userInput));
-    if (userInputs.length === 10) {
-      const correctSum = randomNumbers.reduce((acc, num) => acc + num, 0);
-      const userSum = userInputs.reduce((acc, num) => acc + num, 0);
-      setIsCorrect(userSum === correctSum);
+    const sumOfRandomNumbers = randomNumbers.reduce((acc, num) => acc + num, 0);
+    const userInputSum = parseInt(userInput);
+    if (sumOfRandomNumbers === userInputSum) {
+      setIsCorrect(true);
     } else {
-      setUserInput('');
+      setIsCorrect(false);
     }
   };
 
   const handleRestart = () => {
+    setUserInput('');
+    setRandomNumbers([]);
+    setCurrentNumberIndex(0);
+    setIsInputVisible(false);
+    setIsCorrect(null);
+    setIsModalVisible(false);
     handlePlayGame();
   };
 
   return (
     <View style={styles.container}>
       <Button title="Play Game" onPress={handlePlayGame} />
-      <Modal
-        visible={isModalVisible}
-        transparent={true}
-        animationType="slide"
-        onRequestClose={() => {}}
-      >
+      <Modal visible={isModalVisible} transparent={true}>
         <View style={styles.modalContainer}>
-          {!isInputVisible ? (
-            <Text style={styles.modalText}>{randomNumbers[currentNumberIndex]}</Text>
+          {isInputVisible ? (
+            <View style={styles.inputContainer}>
+              <Text style={styles.modalText}>Enter the sum of the numbers:</Text>
+              <TextInput
+                style={styles.input}
+                value={userInput}
+                onChangeText={(text) => setUserInput(text)}
+                keyboardType="numeric"
+              />
+              <View style={styles.buttonContainer}>
+                <View style={{ flex: 1, alignItems: 'flex-start' }}>
+                  <Button title="Submit" onPress={handleSubmit} style={styles.submitButton} />
+                </View>
+                <View style={{ flex: 1, alignItems: 'flex-end' }}>
+                <Button title="Restart" onPress={handleRestart} style={styles.restartButton} />
+                </View>
+              </View>
+              {isCorrect !== null && (
+                <Text style={isCorrect ? styles.correctText : styles.incorrectText}>
+                  {isCorrect ? 'Correct!' : 'Incorrect'}
+                </Text>
+              )}
+            </View>
           ) : (
-            <>
-              {!isCorrect ? (
-                <>
-                  <Text style={styles.modalText}>Enter the sum of the numbers:</Text>
-                  <TextInput
-                    style={styles.input}
-                    onChangeText={handleInputChange}
-                    value={userInput}
-                    keyboardType="numeric"
-                  />
-                  <Button title="Submit" onPress={handleSubmit} />
-                  {isInputVisible && !isCorrect && (
-                    <Text style={styles.modalText}>Incorrect. Please try again.</Text>
-                  )}
-                </>
-              ) : (
-                <Text style={styles.modalText}>Correct! You win!</Text>
-              )}
-              {!isCorrect && (
-                <Button title="Restart" onPress={handleRestart} />
-              )}
-            </>
+            <View style={styles.numberContainer}>
+              <Text style={styles.numberText}>{randomNumbers[currentNumberIndex]}</Text>
+            </View>
           )}
         </View>
       </Modal>
@@ -104,17 +95,70 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.8)',
   },
+  inputContainer: {
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 10,
+    width: 250,
+    alignItems: 'center',
+  },
   modalText: {
-    fontSize: 60,
+    fontSize: 24,
+    color: 'black',
     fontWeight: 'bold',
-    color: 'white',
-    marginBottom: 20,
+    marginBottom: 10,
   },
   input: {
-    borderWidth: 1,
+    width: 200,
+    height: 40,
     borderColor: 'gray',
+    borderWidth: 1,
     padding: 10,
-    marginBottom: 10,
+    marginBottom: 20,
+  },
+  resultText: {
+    fontSize: 24,
+    color: 'black',
+    marginTop: 20,
+    fontWeight: 'bold',
+    marginBottom: -2,
+  },
+  numberContainer: {
+    padding: 20,
+    borderRadius: 10,
+  },
+  numberText: {
+    fontSize: 64,
+    color: 'black',
+    fontWeight: 'bold',
+  },
+  correctText: {
+    fontSize: 24,
+    color: 'green',
+    fontWeight: 'bold',
+  },
+  incorrectText: {
+    fontSize: 24,
+    color: 'red',
+    fontWeight: 'bold',
+  },
+  submitButton: {
+    width: 100,
+    height: 30,
+    fontSize: 14,
+    borderRadius: 5, // Add smooth edges // Move submit button a bit to the left
+  },
+  restartButton: {
+    width: 100,
+    height: 30,
+    fontSize: 14,
+    borderRadius: 5,
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    paddingHorizontal: 20,
   },
 });
 
