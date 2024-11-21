@@ -2,6 +2,7 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { MaterialIcons } from 'react-native-vector-icons'; // Adjust icon library as needed
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import LoggedInView from './LoggedInView';
 import GamesScreen from './GamesScreen';
 import PlayableScreen from './PlayableScreen';
@@ -17,15 +18,15 @@ export default function LoggedInTabs() {
 
           // Define icons based on the route name
           if (route.name === 'Profil') {
-            iconName = 'person'; // Icon name from MaterialIcons
+            iconName = 'account'; // Icon name from MaterialIcons
           } else if (route.name === 'Igrice') {
             iconName = 'gamepad'; // Icon name from MaterialIcons
-          } else if (route.name === 'Cash'){
-            iconName = 'playGame'; 
+          } else if (route.name === 'Number Game'){
+            iconName = 'dice-4'; 
           }
 
           // Return the icon component
-          return <MaterialIcons name={iconName} size={size} color={color} />;
+          return <MaterialCommunityIcons name={iconName} size={size} color={color} />;
         },
         tabBarActiveTintColor: 'navy',
         tabBarInactiveTintColor: 'gray',
@@ -33,7 +34,7 @@ export default function LoggedInTabs() {
     >
       <Tab.Screen name="Profil" component={LoggedInView} />
       <Tab.Screen name="Igrice" component={GamesScreen} />
-      <Tab.Screen name="Cash" component={PlayableScreen} />
+      <Tab.Screen name="Number Game" component={PlayableScreen} />
     </Tab.Navigator>
   );
 }

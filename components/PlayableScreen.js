@@ -8,9 +8,17 @@ const PlayableScreen = () => {
   const [isInputVisible, setIsInputVisible] = useState(false);
   const [userInput, setUserInput] = useState('');
   const [isCorrect, setIsCorrect] = useState(null);
+  const [isGameStarted, setIsGameStarted] = useState(false);
 
   const handlePlayGame = () => {
-    const numbers = Array.from({ length: 10 }, () => Math.floor(Math.random() * 10));
+    setIsGameStarted(true);
+    const numbers = [];
+    while (numbers.length < 10) {
+      const number = Math.floor(Math.random() * 10);
+      if (!numbers.includes(number)) {
+        numbers.push(number);
+      }
+    }
     setRandomNumbers(numbers);
     setIsModalVisible(true);
     setIsInputVisible(false);
@@ -46,7 +54,9 @@ const PlayableScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Button title="Play Game" onPress={handlePlayGame} />
+      {!isGameStarted && (
+        <Button title="Play Game" onPress={handlePlayGame} />
+      )}
       <Modal visible={isModalVisible} transparent={true}>
         <View style={styles.modalContainer}>
           {isInputVisible ? (
@@ -129,7 +139,7 @@ const styles = StyleSheet.create({
   },
   numberText: {
     fontSize: 64,
-    color: 'black',
+    color: 'white',
     fontWeight: 'bold',
   },
   correctText: {
@@ -146,7 +156,7 @@ const styles = StyleSheet.create({
     width: 100,
     height: 30,
     fontSize: 14,
-    borderRadius: 5, // Add smooth edges // Move submit button a bit to the left
+    borderRadius: 5, 
   },
   restartButton: {
     width: 100,
